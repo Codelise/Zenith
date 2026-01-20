@@ -20,6 +20,7 @@ async function fetchWeather(cityName) {
     const data = await response.json();
 
     displayCurrentWeather(data);
+    fetchForecast(cityName);
     hideLoading();
   } catch (error) {
     hideLoading();
@@ -32,7 +33,7 @@ async function fetchWeather(cityName) {
   }
 }
 
-// displays current weather on UI
+// Displays current weather on UI
 function displayCurrentWeather(weatherData) {
   let temperature = Math.round(weatherData.main.temp);
   let cityName = weatherData.name;
@@ -159,7 +160,7 @@ function capitalizeFirstLetter(text) {
 }
 
 // DAY 3: Search Functionality
-// setups evet listeners
+// Setup evet listeners
 function setupEventListeners() {
   const citySearch = document.querySelector("#city-search");
 
@@ -175,7 +176,7 @@ function setupEventListeners() {
   });
 }
 
-// handles search
+// Handles search
 function handleSearch() {
   const citySearch = document.querySelector("#city-search");
   const cityName = citySearch.value.trim();
@@ -188,7 +189,7 @@ function handleSearch() {
   localStorage.setItem("lastCity", cityName);
 }
 
-// load City from localStorage
+// Load City from localStorage
 function loadDefaultCity() {
   const lastCity = localStorage.getItem("lastCity");
   if (lastCity) {
@@ -204,7 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // DAY 4: Loading & Error States
-// shows loading state
+// Shows loading state
 function showLoading() {
   const loadingState = document.querySelector("#loading-state");
   loadingState.style.display = "flex";
@@ -212,7 +213,7 @@ function showLoading() {
   citySearch.disabled = true;
 }
 
-// hides loading state
+// Hides loading state
 function hideLoading() {
   const loadingState = document.querySelector("#loading-state");
   loadingState.style.display = "none";
@@ -221,17 +222,135 @@ function hideLoading() {
   citySearch.disabled = false;
 }
 
-// shows error state
+// Shows error state
 function showError(errorMessage) {
   const errorState = document.querySelector("#error-state");
   document.querySelector(".error-message").textContent = errorMessage;
   errorState.style.display = "flex";
 }
 
-// hides error state
+// Hides error state
 function hideError() {
   const errorState = document.querySelector("#error-state");
   errorState.style.display = "none";
 }
 
 // DAY 5 bukas
+// Fetch forecast data
+async function fetchForecast(cityName) {
+  const url =
+    BASE_URL +
+    "/forecast?q=" +
+    cityName +
+    "&appid=" +
+    API_KEY +
+    "&units=metric";
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error("Unable to fetch forecast");
+    }
+
+    const data = await response.json();
+    const processedForecast = processForecastData(data);
+    displayForecast(processedForecast);
+  } catch (error) {
+    console.log("Forecast error " + error.message);
+  }
+}
+
+// Process Forecast Data
+function processForecastData(forecastData) {
+  let forecastByDay = {};
+  let finalForecast = [];
+  forecastData.list.forEach((item) => {
+    let date = item.dt_txt.slice(0, 10);
+    if (!forecastByDay[date]) {
+      forecastByDay[date] = {
+        date: date,
+        temps: [],
+        condition: item.weather[0].main,
+        icon: item.weather[0].icon,
+        description: item.weather[0].description,
+      };
+    }
+
+    forecastByDay[date].temps.push(item.main.temp);
+  });
+  const dayObjects = Object.values(forecastByDay);
+  dayObjects.slice(0, 5).forEach((day) => {
+    const temps = day.temps;
+    const highTemp = Math.round(Math.max(...temps));
+    const lowTemp = Math.round(Math.min(...temps));
+
+    const dayName = getDayName(day.date);
+
+    finalForecast.push({
+      day: dayName,
+      high: highTemp,
+      low: lowTemp,
+      condition: day.condition,
+      icon: day.icon,
+    });
+  });
+
+  return finalForecast;
+}
+
+// Display Forecast
+function displayForecast(forecastArray) {
+  const forecastGrid = document.querySelector("#forecast-grid");
+  forecastGrid.innerHTML = "";
+
+  forecastArray.forEach((forecast) => {
+    const card = createForecastCard(forecast);
+    forecastGrid.appendChild(card);
+  });
+}
+
+// Create Forcast Card
+function createForecastCard(forecast) {
+  const iconName = getIconName(forecast.condition);
+  const cardElement = document.createElement("div");
+  cardElement.classList.add("forecast-card", "glass-card");
+
+  cardElement.innerHTML = `
+  <span class="forecast-day">${forecast.day}</span>
+  <span class="material-symbols-outlined forecast-icon">${iconName}</span>
+
+  <div class="forecast-temps">
+    <span class="forecast-high">${forecast.high}</span>
+    <span class="forecast=low">${forecast.low}</span>
+  </div>`;
+
+  return cardElement;
+}
+
+// Get day from date
+function getDayName(dateString) {
+  const dateObject = new Date(dateString);
+
+  const dayIndex = dateObject.getDay();
+
+  const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  return dayNames[dayIndex];
+}
+
+// Get icon name for condition
+function getIconName(condition) {
+  const iconMap = {
+    Clear: "wb_sunny",
+    Clouds: "cloud",
+    Rain: "rainy",
+    Drizzle: "grain",
+    Thunderstorm: "thunderstorm",
+    Snow: "ac_unit",
+    Mist: "foggy",
+    Fog: "foggy",
+    Haze: "foggy",
+  };
+
+  return iconMap[condition] || "wb_cloudy";
+}
