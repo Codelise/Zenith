@@ -1,124 +1,135 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Zenith Weather Dashboard</title>
-
+    <link id="favicon" rel="icon" href="sun-icon.svg" type="image/svg+xml" />
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- Stylesheet -->
-    <link rel="stylesheet" href="styles.css">
-</head>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
 
-<body data-weather="Night">
-
+  <body data-weather="Night">
     <!-- Main Container -->
     <div class="container">
-
-        <!-- Header / Navigation -->
-        <header class="header">
-            <div class="logo-section">
-                <div class="logo-icon">
-                    <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M36.7273 44C33.9891 44 31.6043 39.8386 30.3636 33.69C29.123 39.8386 26.7382 44 24 44C21.2618 44 18.877 39.8386 17.6364 33.69C16.3957 39.8386 14.0109 44 11.2727 44C7.25611 44 4 35.0457 4 24C4 12.9543 7.25611 4 11.2727 4C14.0109 4 16.3957 8.16144 17.6364 14.31C18.877 8.16144 21.2618 4 24 4C26.7382 4 29.123 8.16144 30.3636 14.31C31.6043 8.16144 33.9891 4 36.7273 4C40.7439 4 44 12.9543 44 24C44 35.0457 40.7439 44 36.7273 44Z"
-                            fill="currentColor" />
-                    </svg>
-                </div>
-                <h1 class="logo-text">Zenith</h1>
-            </div>
-
-            <div class="search-container">
-                <label class="search-label">
-                    <span class="search-icon material-symbols-outlined">search</span>
-                    <input type="text" id="city-search" class="search-input" placeholder="Search city..."
-                        autocomplete="off">
-                </label>
-            </div>
-        </header>
-
-        <!-- Main Weather Card -->
-        <main class="weather-card">
-            <!-- Large Weather Icon -->
-            <div class="weather-icon-large">
-                <span class="material-symbols-outlined" id="main-weather-icon">
-                    dark_mode
-                </span>
-            </div>
-
-            <!-- Temperature & Location -->
-            <div class="weather-info">
-                <h2 class="temperature" id="current-temp">--°C</h2>
-                <div class="location-info">
-                    <h3 class="city-name" id="city-name">City, Country</h3>
-                    <p class="weather-description" id="weather-description">Loading...</p>
-                </div>
-            </div>
-
-            <!-- Stats Row -->
-            <div class="stats-row">
-                <div class="stat-item">
-                    <span class="material-symbols-outlined stat-icon">humidity_percentage</span>
-                    <span class="stat-label">Humidity</span>
-                    <span class="stat-value" id="humidity">--%</span>
-                </div>
-
-                <div class="stat-divider"></div>
-
-                <div class="stat-item">
-                    <span class="material-symbols-outlined stat-icon">air</span>
-                    <span class="stat-label">Wind</span>
-                    <span class="stat-value" id="wind-speed">-- km/h</span>
-                </div>
-
-                <div class="stat-divider"></div>
-
-                <div class="stat-item">
-                    <span class="material-symbols-outlined stat-icon">thermostat</span>
-                    <span class="stat-label">Feels Like</span>
-                    <span class="stat-value" id="feels-like">--°C</span>
-                </div>
-            </div>
-        </main>
-
-        <!-- 5-Day Forecast -->
-        <div class="forecast-grid" id="forecast-grid">
-            <!-- Forecast cards will be dynamically generated -->
+      <!-- Header / Navigation -->
+      <header class="header">
+        <div class="logo-section">
+          <div class="logo-icon">
+            <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M36.7273 44C33.9891 44 31.6043 39.8386 30.3636 33.69C29.123 39.8386 26.7382 44 24 44C21.2618 44 18.877 39.8386 17.6364 33.69C16.3957 39.8386 14.0109 44 11.2727 44C7.25611 44 4 35.0457 4 24C4 12.9543 7.25611 4 11.2727 4C14.0109 4 16.3957 8.16144 17.6364 14.31C18.877 8.16144 21.2618 4 24 4C26.7382 4 29.123 8.16144 30.3636 14.31C31.6043 8.16144 33.9891 4 36.7273 4C40.7439 4 44 12.9543 44 24C44 35.0457 40.7439 44 36.7273 44Z"
+                fill="currentColor"
+              />
+            </svg>
+          </div>
+          <h1 class="logo-text">Zenith</h1>
         </div>
 
-        <!-- Map Section -->
-        <div class="map-section">
-            <div class="map-overlay"></div>
-            <div class="map-info">
-                <span class="material-symbols-outlined map-icon">location_on</span>
-                <span class="map-text">Local Radar Active</span>
-            </div>
+        <div class="search-container">
+          <label class="search-label">
+            <span class="search-icon material-symbols-outlined">search</span>
+            <input
+              type="text"
+              id="city-search"
+              class="search-input"
+              placeholder="Search city..."
+              autocomplete="off"
+            />
+          </label>
+        </div>
+      </header>
+
+      <!-- Main Weather Card -->
+      <main class="weather-card">
+        <!-- Large Weather Icon -->
+        <div class="weather-icon-large">
+          <span class="material-symbols-outlined" id="main-weather-icon">
+            dark_mode
+          </span>
         </div>
 
-        <!-- Loading State (hidden by default) -->
-        <div class="loading-state" id="loading-state" style="display: none;">
-            <div class="spinner"></div>
-            <p>Fetching weather data...</p>
+        <!-- Temperature & Location -->
+        <div class="weather-info">
+          <h2 class="temperature" id="current-temp">--°C</h2>
+          <div class="location-info">
+            <h3 class="city-name" id="city-name">City, Country</h3>
+            <p class="weather-description" id="weather-description">
+              Loading...
+            </p>
+          </div>
         </div>
 
-        <!-- Error State (hidden by default) -->
-        <div class="error-state" id="error-state" style="display: none;">
-            <span class="material-symbols-outlined error-icon">error</span>
-            <h3 class="error-title">City Not Found</h3>
-            <p class="error-message">Please check the spelling or try searching for a different city.</p>
-            <button class="retry-btn" id="retry-btn">Try Again</button>
-        </div>
+        <!-- Stats Row -->
+        <div class="stats-row">
+          <div class="stat-item">
+            <span class="material-symbols-outlined stat-icon"
+              >humidity_percentage</span
+            >
+            <span class="stat-label">Humidity</span>
+            <span class="stat-value" id="humidity">--%</span>
+          </div>
 
+          <div class="stat-divider"></div>
+
+          <div class="stat-item">
+            <span class="material-symbols-outlined stat-icon">air</span>
+            <span class="stat-label">Wind</span>
+            <span class="stat-value" id="wind-speed">-- km/h</span>
+          </div>
+
+          <div class="stat-divider"></div>
+
+          <div class="stat-item">
+            <span class="material-symbols-outlined stat-icon">thermostat</span>
+            <span class="stat-label">Feels Like</span>
+            <span class="stat-value" id="feels-like">--°C</span>
+          </div>
+        </div>
+      </main>
+
+      <!-- 5-Day Forecast -->
+      <div class="forecast-grid" id="forecast-grid">
+        <!-- Forecast cards will be dynamically generated -->
+      </div>
+
+      <!-- Map Section -->
+      <div class="map-section">
+        <div class="map-overlay"></div>
+        <div class="map-info">
+          <span class="material-symbols-outlined map-icon">location_on</span>
+          <span class="map-text">Local Radar Active</span>
+        </div>
+      </div>
+
+      <!-- Loading State (hidden by default) -->
+      <div class="loading-state" id="loading-state" style="display: none">
+        <div class="spinner"></div>
+        <p>Fetching weather data...</p>
+      </div>
+
+      <!-- Error State (hidden by default) -->
+      <div class="error-state" id="error-state" style="display: none">
+        <span class="material-symbols-outlined error-icon">error</span>
+        <h3 class="error-title">City Not Found</h3>
+        <p class="error-message">
+          Please check the spelling or try searching for a different city.
+        </p>
+        <button class="retry-btn" id="retry-btn">Try Again</button>
+      </div>
     </div>
 
     <!-- JavaScript -->
     <script src="script.js"></script>
-</body>
-
+  </body>
 </html>

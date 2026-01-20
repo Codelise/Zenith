@@ -1,37 +1,44 @@
+// DAY 2: Display Current Weather
 const API_KEY = "2cceedd558bf76da4e27afcf9e6fda46";
 const BASE_URL = "https://api.openweathermap.org/data/2.5";
 
-document.addEventListener("DOMContentLoaded", () => {
-  // CALL setupEventListeners()
-  // CALL loadDefaultCity()  Optional: Load saved city or default
-});
-
 // Fetch weather data
-async function fetchWeather(city) {
-  // SHOW loading state
+async function fetchWeather(cityName) {
+  showLoading();
+  const url =
+    BASE_URL + "/weather?q=" + cityName + "&appid=" + API_KEY + "&units=metric";
   try {
-    const test_url = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`;
-    const response = await fetch(test_url);
-    const data = await response.json();
-    if (response.ok) {
-      //  CALL displayCurrentWeather(data)
-      //  CALL fetchForecast(city)
-      //  APPLY weather theme
-    } else {
-      throw new Error(`Weather Data unavailable for this city: ${city}`);
+    const response = await fetch(url);
+    if (response.status === 404) {
+      throw new Error("City not found. Please check the spelling");
+    } else if (response.status === 401) {
+      throw new Error("Invalid API key. Please check your configuration.");
+    } else if (!response.ok) {
+      throw new Error("Unable to fetch weather data. Please try again.");
     }
+
+    const data = await response.json();
+
+    displayCurrentWeather(data);
+    hideLoading();
   } catch (error) {
-    // CALL showError(error message)
-  } finally {
-    // HIDE loading state
+    hideLoading();
+    if (error.message.includes("fetch") || error.name === "TypeError") {
+      showError("Network error. Please check your internet connection.");
+    } else {
+      showError(error.message);
+    }
+    console.log(error);
   }
 }
 
+// displays current weather on UI
 function displayCurrentWeather(weatherData) {
   let temperature = Math.round(weatherData.main.temp);
   let cityName = weatherData.name;
   let countryCode = weatherData.sys.country;
-  let weatherCondition = weatherData.weather[0].description;
+  let weatherCondition = weatherData.weather[0].main;
+  let weatherDescription = weatherData.weather[0].description;
   let humidity = weatherData.main.humidity;
   let windSpeed = weatherData.wind.speed;
   let feelsLike = Math.round(weatherData.main.feels_like);
@@ -41,29 +48,40 @@ function displayCurrentWeather(weatherData) {
   let sunrise = weatherData.sys.sunrise;
   let sunset = weatherData.sys.sunset;
 
-  const currentTemp = document.querySelector("#current-temp");
-  currentTemp.textContent = temperature + "°C";
+  document.querySelector("#current-temp").textContent = temperature + "°C";
 
-  const city = document.querySelector("#city-name");
-  city.textContent = cityName + ", " + countryCode;
+  document.querySelector("#city-name").textContent =
+    cityName + ", " + countryCode;
 
-  const weatherDesc = document.querySelector("#weather-description");
-  weatherDesc.textContent = weatherDescription.toUpperCase();
+  document.querySelector("#weather-description").textContent =
+    weatherDescription.toUpperCase();
 
-  const humid = document.querySelector("#humidity");
-  humid.textContent = humidity + "%";
+  document.querySelector("#humidity").textContent = humidity + "%";
 
-  const wind_speed = document.querySelector("#wind-speed");
-  wind_speed.textContent = windSpeed + "km/h";
+  document.querySelector("#wind-speed").textContent = windSpeed + "km/h";
 
-  const feels_like = document.querySelector("#feels-like");
-  feels_like.textContent = feelsLike + "°C";
+  document.querySelector("#feels-like").textContent = feelsLike + "°C";
 
-  // Apply theme based on weather and time
-  // SET isNight = CALL isNightTime(currentTime, sunrise, sunset)
-  // CALL applyWeatherTheme(weatherCondition, isNight)
+  updateWeatherIcon(weatherCondition, weatherIcon);
+
+  let isNight = isNightTime(currentTime, sunrise, sunset);
+  applyWeatherTheme(weatherCondition, isNight);
+  updateFavicon(isNight);
 }
 
+// Update Favicon based on Day or night
+function updateFavicon(isNight) {
+  const favicon = document.querySelector("#favicon");
+  if (isNight) {
+    favicon.href =
+      "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌙</text></svg>";
+  } else {
+    favicon.href =
+      "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☀️</text></svg>";
+  }
+}
+
+// Update weather icon
 function updateWeatherIcon(condition, iconCode) {
   let iconElement = document.querySelector("#main-weather-icon");
 
@@ -90,4 +108,130 @@ function updateWeatherIcon(condition, iconCode) {
   iconElement.textContent = iconName;
 }
 
-// TO BE CONTNUED
+// Applies weather theme
+function applyWeatherTheme(weatherCondition, isNight) {
+  const body = document.body;
+
+  if (isNight) {
+    body.setAttribute("data-weather", "Night");
+    return;
+  }
+
+  const weatherThemeMap = {
+    Clear: "Clear",
+    Clouds: "Clouds",
+    Rain: "Rain",
+    Drizzle: "Rain",
+    Thunderstorm: "Thunderstorm",
+    Snow: "Snow",
+    Mist: "Mist",
+    Fog: "Mist",
+    Haze: "Mist",
+  };
+
+  let themeName = weatherThemeMap[weatherCondition] || "Clear";
+
+  body.setAttribute("data-weather", themeName);
+  console.log("Applied theme: " + themeName);
+}
+
+// checks if nightime
+function isNightTime(currentTime, sunrise, sunset) {
+  if (currentTime < sunrise) {
+    return true;
+  } else if (currentTime > sunset) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+// Utility: Captilize first letter
+function capitalizeFirstLetter(text) {
+  if (text === "") {
+    return text;
+  }
+
+  let firstChar = text.charAt(0).toUpperCase();
+  let restOfText = text.slice(1);
+
+  return firstChar + restOfText;
+}
+
+// DAY 3: Search Functionality
+// setups evet listeners
+function setupEventListeners() {
+  const citySearch = document.querySelector("#city-search");
+
+  citySearch.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      handleSearch();
+    }
+  });
+
+  const retryBtn = document.querySelector("#retry-btn");
+  retryBtn.addEventListener("click", () => {
+    hideError();
+  });
+}
+
+// handles search
+function handleSearch() {
+  const citySearch = document.querySelector("#city-search");
+  const cityName = citySearch.value.trim();
+
+  if (cityName === "") return;
+
+  fetchWeather(cityName);
+  citySearch.value = "";
+
+  localStorage.setItem("lastCity", cityName);
+}
+
+// load City from localStorage
+function loadDefaultCity() {
+  const lastCity = localStorage.getItem("lastCity");
+  if (lastCity) {
+    fetchWeather(lastCity);
+  } else {
+    fetchWeather("Manila");
+  }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  setupEventListeners();
+  loadDefaultCity();
+});
+
+// DAY 4: Loading & Error States
+// shows loading state
+function showLoading() {
+  const loadingState = document.querySelector("#loading-state");
+  loadingState.style.display = "flex";
+  const citySearch = document.querySelector("#city-search");
+  citySearch.disabled = true;
+}
+
+// hides loading state
+function hideLoading() {
+  const loadingState = document.querySelector("#loading-state");
+  loadingState.style.display = "none";
+
+  const citySearch = document.querySelector("#city-search");
+  citySearch.disabled = false;
+}
+
+// shows error state
+function showError(errorMessage) {
+  const errorState = document.querySelector("#error-state");
+  document.querySelector(".error-message").textContent = errorMessage;
+  errorState.style.display = "flex";
+}
+
+// hides error state
+function hideError() {
+  const errorState = document.querySelector("#error-state");
+  errorState.style.display = "none";
+}
+
+// DAY 5 bukas
